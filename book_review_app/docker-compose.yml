@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  db:
+    image: mysql:8.0
+    container_name: book-review-db
+    restart: always
+    env_file:
+      - ./backend/.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build: ./backend
+    container_name: book-review-backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - ./backend/.env
+
+volumes:
+  db_data:

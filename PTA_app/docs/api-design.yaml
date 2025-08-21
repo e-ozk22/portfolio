@@ -1,0 +1,526 @@
+openapi: 3.0.0
+info:
+  title: PTA活動支援API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000 # ローカル開発用。実運用時は本番URL。
+paths:
+  /auth/register:
+    post:
+      summary: ユーザー登録
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        '201':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: バリデーションエラー
+
+  /auth/login:
+    post:
+      summary: ログイン
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: バリデーションエラー
+
+  /api/user/me:
+    get:
+      summary: 自分のユーザー情報取得
+      responses:
+        '200':
+          description: ユーザー情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /api/events:
+    get:
+      summary: イベント一覧取得
+      responses:
+        '200':
+          description: イベント一覧
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventsListResponse'
+    post:
+      summary: イベント作成
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreateRequest'
+      responses:
+        '201':
+          description: イベント作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDetailResponse'
+
+  /api/events/{eventId}:
+    get:
+      summary: イベント詳細取得
+      parameters:
+        - name: eventId
+          in: path
+          required: true # これはOpenAPI的には正しい
+          schema:
+            type: string
+      responses:
+        '200':
+          description: イベント詳細
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDetailResponse'
+    put:
+      summary: イベント編集
+      parameters:
+        - name: eventId
+          in: path
+          required: true # これはOpenAPI的には正しい
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventEditRequest'
+      responses:
+        '200':
+          description: イベント編集成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDetailResponse'
+
+  /api/events/{eventId}/apply:
+    post:
+      summary: イベント参加申込
+      parameters:
+        - name: eventId
+          in: path
+          required: true # これはOpenAPI的には正しい
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventApplyRequest'
+      responses:
+        '201':
+          description: 参加申込成功
+
+
+  /api/events/{eventId}/cancel:
+    post:
+      summary: イベント参加キャンセル
+      parameters:
+        - name: eventId
+          in: path
+          required: true # これはOpenAPI的には正しい
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 参加キャンセル成功
+
+  /api/events/{eventId}/participants:
+    get:
+      summary: イベント参加者一覧取得
+      parameters:
+        - name: eventId
+          in: path
+          required: true # これはOpenAPI的には正しい
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 参加者一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+  
+  /api/events/{eventId}/reactions:
+    post:
+      summary: スタンプ送信
+      parameters:
+        - name: eventId
+          in: path
+          required: true # これはOpenAPI的には正しい
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReactionSendRequest'
+      responses:
+        '201':
+          description: スタンプ送信成功
+
+    get:
+      summary: スタンプ一覧取得
+      parameters:
+        - name: eventId
+          in: path
+          required: true # これはOpenAPI的には正しい
+          schema:
+            type: string
+      responses:
+        '200':
+          description: スタンプ一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReactionResponse'
+
+  /api/points/granted:
+    post:
+      summary: ポイント付与
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PointGrantedRequest'
+      responses:
+        '200':
+          description: ポイント付与成功
+
+  /api/points:
+    get:
+      summary: ポイント確認
+      responses:
+        '200':
+          description: ポイント情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointInfoResponse'
+
+  /api/points/history:
+    get:
+      summary: ポイント履歴取得
+      responses:
+        '200':
+          description: ポイント履歴
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PointHistoryResponse'
+
+  /api/rewards:
+    get:
+      summary: 交換可能な優先権一覧取得
+      responses:
+        '200':
+          description: 優先権一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RewardResponse'
+
+
+  /api/rewards/exchange:
+    post:
+      summary: 優先権交換申請
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RewardExchangeRequest'
+      responses:
+        '201':
+          description: 優先権交換申請成功
+
+  /api/privileges:
+    get:
+      summary: 取得済み優先権一覧取得（自分の優先権リスト）
+      responses:
+        '200':
+          description: 優先権情報
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivilegeInfoResponse'
+
+  /api/card:
+    post:
+      summary: カード登録・更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRegisterRequest'
+      responses:
+        '201':
+          description: カード登録・更新成功
+
+components:
+  schemas:
+    # ユーザー
+    UserRegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [parent, staff]
+      required:
+        - email
+        - password
+        - name
+        - role
+
+    UserLoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    # イベント
+    EventCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+        capacity:
+          type: integer
+        description:
+          type: string
+        deadline:
+          type: string
+          format: date
+        point:
+          type: integer
+      required:
+        - name
+        - date
+        - capacity
+        - description
+        - deadline
+        - point
+
+    EventEditRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+        capacity:
+          type: integer
+        description:
+          type: string
+        deadline:
+          type: string
+          format: date
+        point:
+          type: integer
+
+    EventsListResponse:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventDetailResponse'
+
+    EventDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+        capacity:
+          type: integer
+        description:
+          type: string
+        deadline:
+          type: string
+          format: date
+        point:
+          type: integer
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+
+    EventApplyRequest:
+      type: object
+      properties:
+        comment:
+          type: string
+
+    # スタンプ
+    ReactionSendRequest:
+      type: object
+      properties:
+        message:
+          type: string
+        stampType:
+          type: string
+
+    ReactionResponse:
+      type: object
+      properties:
+        sender:
+          $ref: '#/components/schemas/UserResponse'
+        message:
+          type: string
+        stampType:
+          type: string
+
+    # ポイント
+    PointGrantedRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        eventId:
+          type: string
+        point:
+          type: integer
+      required:
+        - userId
+        - eventId
+        - point
+
+    PointInfoResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        balance:
+          type: integer
+
+    PointHistoryResponse:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        change:
+          type: integer
+        balance:
+          type: integer
+        reason:
+          type: string
+
+    # 優先権
+    RewardResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        requiredPoint:
+          type: integer
+
+    RewardExchangeRequest:
+      type: object
+      properties:
+        rewardId:
+          type: string
+      required:
+        - rewardId
+
+    # 獲得した優先権
+    PrivilegeInfoResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        privileges:
+          type: array
+          items:
+            type: string
+
+    # カード
+    CardRegisterRequest:
+      type: object
+      properties:
+        cardNumber:
+          type: string
+        expiration:
+          type: string
+        cvc:
+          type: string

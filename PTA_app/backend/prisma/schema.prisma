@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Nursery {
+  id         String   @id @default(uuid()) @db.Char(36)
+  name       String   @db.VarChar(255)
+  createdAt  DateTime @default(now())
+
+  users      User[]
+  paymentMethods PaymentMethod[]
+}
+
+model User {
+  id                 String                @id @default(uuid()) @db.Char(36)
+  firebaseUid        String              @unique @db.VarChar(255)
+  nurseryId          String                @db.Char(36)
+  name               String                @db.VarChar(255)
+  email              String                @unique @db.VarChar(255)
+  passwordHash       String                @db.VarChar(255)
+  role               String                @db.VarChar(50)
+  isAdmin            Boolean
+  profileImageUrl    String?               @db.VarChar(255)
+  createdAt          DateTime              @default(now())
+
+  nursery            Nursery               @relation(fields: [nurseryId], references: [id])
+  children           Child[]
+  eventApplications  EventApplication[]
+  eventReactions     EventReaction[]       @relation("UserEventReactions")
+  points             Point[]
+  privileges         Privilege[]
+  paymentMethods     PaymentMethod[]       @relation("UserPaymentMethods")
+  eventsCreated      Event[]               @relation("CreatedBy")
+}
+
+model Child {
+  id               String   @id @default(uuid()) @db.Char(36)
+  userId           String   @db.Char(36)
+  name             String   @db.VarChar(255)
+  className        String   @db.VarChar(100)
+  createdAt        DateTime @default(now())
+
+  user             User     @relation(fields: [userId], references: [id])
+}
+
+model Event {
+  id                 String                @id @default(uuid()) @db.Char(36)
+  title              String                @db.VarChar(255)
+  description        String                @db.Text
+  date               DateTime
+  startTime          String
+  endTime            String
+  location           String                @db.VarChar(255)
+  requiredItems      String?               @db.Text
+  specialNotes       String?               @db.Text
+  capacity           Int?
+  deadline           DateTime
+  pointReward        Int
+  privilegeAllowed   Boolean
+  createdById        String                @db.Char(36)
+  createdAt          DateTime              @default(now())
+
+  createdBy          User                  @relation("CreatedBy", fields: [createdById], references: [id])
+  slots              EventSlot[]
+  applications       EventApplication[]
+  reactions          EventReaction[]
+  points             Point[]
+  privileges         Privilege[]
+}
+
+model EventSlot {
+  id         String   @id @default(uuid()) @db.Char(36)
+  eventId    String   @db.Char(36)
+  startTime  DateTime
+  endTime    DateTime
+  capacity   Int
+  createdAt  DateTime @default(now())
+
+  event      Event    @relation(fields: [eventId], references: [id])
+  applications EventApplication[]
+}
+
+model EventApplication {
+  id         String   @id @default(uuid()) @db.Char(36)
+  eventId    String   @db.Char(36)
+  userId     String   @db.Char(36)
+  slotId     String?   @db.Char(36)
+  status     String   @db.VarChar(20)
+  appliedAt  DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  event      Event    @relation(fields: [eventId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  slot       EventSlot? @relation(fields: [slotId], references: [id])
+}
+
+model EventReaction {
+  id         String   @id @default(uuid()) @db.Char(36)
+  eventId    String   @db.Char(36)
+  userId     String   @db.Char(36)
+  emoji      String   @db.VarChar(10)
+  reactedAt  DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  event      Event    @relation(fields: [eventId], references: [id])
+  user       User     @relation("UserEventReactions", fields: [userId], references: [id])
+}
+
+model Point {
+  id         String   @id @default(uuid()) @db.Char(36)
+  userId     String   @db.Char(36)
+  eventId    String   @db.Char(36)
+  points     Int
+  grantedAt  DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
+  event      Event    @relation(fields: [eventId], references: [id])
+}
+
+model Reward {
+  id                String     @id @default(uuid()) @db.Char(36)
+  name              String     @db.VarChar(255)
+  description       String     @db.Text
+  pointsRequired    Int
+  capacity          Int?
+  createdAt         DateTime   @default(now())
+
+  privileges        Privilege[]
+}
+
+model Privilege {
+  id                String     @id @default(uuid()) @db.Char(36)
+  userId            String     @db.Char(36)
+  eventId           String     @db.Char(36)
+  rewardId          String     @db.Char(36)
+  status            String     @db.VarChar(20)
+  exchangedAt       DateTime   @default(now())
+  createdAt         DateTime   @default(now())
+
+  user              User       @relation(fields: [userId], references: [id])
+  event             Event      @relation(fields: [eventId], references: [id])
+  reward            Reward     @relation(fields: [rewardId], references: [id])
+}
+
+model PaymentMethod {
+  id                     String   @id @default(uuid()) @db.Char(36)
+  userId                 String   @db.Char(36)
+  nurseryId              String   @db.Char(36)
+  stripeCustomerId       String   @db.VarChar(255)
+  stripePaymentMethodId  String   @db.VarChar(255)
+  isActive               Boolean
+
+  user                   User      @relation("UserPaymentMethods", fields: [userId], references: [id])
+  nursery                Nursery   @relation(fields: [nurseryId], references: [id])
+}
+
+model Stamp {
+  id        Int    @id @default(autoincrement())
+  name      String
+  imageUrl  String
+  createdAt DateTime @default(now())
+}

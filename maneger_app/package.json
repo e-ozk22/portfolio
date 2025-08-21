@@ -1,0 +1,27 @@
+{
+  "name": "mystanexpensemanager",
+  "version": "1.0.0",
+  "description": "Section8_teamA",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ms-engineer-bc25-04/Section8_teamA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ms-engineer-bc25-04/Section8_teamA/issues"
+  },
+  "homepage": "https://github.com/ms-engineer-bc25-04/Section8_teamA#readme",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.830.0",
+    "@aws-sdk/lib-dynamodb": "^3.830.0",
+    "@line/bot-sdk": "^10.0.0",
+    "openai": "^5.5.1"
+  }
+}

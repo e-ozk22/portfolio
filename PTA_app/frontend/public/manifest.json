@@ -1,0 +1,23 @@
+{
+  "name": "PTA活動アプリ",
+  "short_name": "CHOCOT",
+  "description": "保護者のPTA活動参加を促進するアプリ",
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f8b9d4",
+  "icons": [
+    {
+      "src": "/chocot-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/chocot-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
